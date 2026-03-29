@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ShortsFuel ⚡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090d;--surface:#0d1117;--surface2:#141a22;
+  --border:#1e2a38;--accent:#f0ff44;--accent2:#ff4d6d;--blue:#60a5fa;
+  --red:#ef4444;--purple:#a855f7;--text:#dde4ed;--muted:#4a5568;--radius:12px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+#setup{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;position:relative;z-index:1}
+.setup-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:480px;box-shadow:0 40px 80px rgba(0,0,0,.7)}
+.logo{text-align:center;margin-bottom:2rem}
+.logo-icon{font-size:2.8rem;display:block;margin-bottom:.4rem}
+.logo h1{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--accent);letter-spacing:-1px}
+.logo p{color:var(--muted);font-size:.88rem;margin-top:.3rem}
+.saved-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;background:rgba(96,165,250,.1);color:var(--blue);border:1px solid rgba(96,165,250,.2);padding:.2rem .6rem;border-radius:20px;margin-top:.5rem}
+.eleven-usage{font-size:.72rem;color:var(--blue);margin-top:.4rem;display:flex;align-items:center;gap:.4rem;justify-content:center}
+.flux-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;background:rgba(168,85,247,.1);color:var(--purple);border:1px solid rgba(168,85,247,.2);padding:.2rem .6rem;border-radius:20px;margin-top:.3rem}
+.claude-badge{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;background:rgba(240,255,68,.08);color:var(--accent);border:1px solid rgba(240,255,68,.15);padding:.2rem .6rem;border-radius:20px;margin-top:.3rem}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.field input,.field select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;padding:.7rem 1rem;outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus{border-color:var(--accent)}
+.field input::placeholder{color:var(--muted)}
+.field-hint{font-size:.75rem;color:var(--muted);margin-top:.3rem}
+.field-hint a{color:var(--accent);text-decoration:none}
+.btn-primary{width:100%;padding:.85rem;background:var(--accent);color:#07090d;border:none;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;margin-top:.5rem}
+.btn-primary:hover{opacity:.9}
+.btn-primary:active{transform:scale(.98)}
+.btn-clear{width:100%;padding:.55rem;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-size:.8rem;cursor:pointer;margin-top:.5rem;transition:all .2s}
+.btn-clear:hover{border-color:var(--accent2);color:var(--accent2)}
+.divider{height:1px;background:var(--border);margin:1.2rem 0}
+#app{display:none;position:relative;z-index:1}
+header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:rgba(7,9,13,.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100}
+.header-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;color:var(--accent)}
+.header-logo span{color:var(--text)}
+.steps{display:flex;gap:.4rem;align-items:center}
+.step-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;background:var(--surface2);border:1px solid var(--border);color:var(--muted);transition:all .3s}
+.step-dot.active{background:var(--accent);color:#07090d;border-color:var(--accent)}
+.step-dot.done{background:var(--surface2);color:var(--accent);border-color:var(--accent)}
+.step-line{width:16px;height:1px;background:var(--border)}
+.btn-reset{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;font-size:.78rem;padding:.38rem .75rem;cursor:pointer;transition:all .2s}
+.btn-reset:hover{border-color:var(--accent2);color:var(--accent2)}
+.btn-menu{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;font-size:.78rem;padding:.38rem .75rem;cursor:pointer;transition:all .2s}
+.btn-menu:hover{border-color:var(--accent);color:var(--accent)}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.8rem;margin-bottom:1.5rem}
+.panel-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:1.4rem;display:flex;align-items:center;gap:.6rem}
+.step-badge{background:var(--accent);color:#07090d;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;flex-shrink:0}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem;gap:.8rem;color:var(--muted)}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{font-size:.88rem}
+.trend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.9rem}
+.trend-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;cursor:pointer;transition:all .2s}
+.trend-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.trend-card.selected{border-color:var(--accent);background:rgba(240,255,68,.05)}
+.trend-emoji{font-size:1.7rem;margin-bottom:.5rem}
+.trend-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:.35rem}
+.trend-why{font-size:.78rem;color:var(--muted);line-height:1.5}
+.trend-score{display:inline-flex;align-items:center;gap:.3rem;margin-top:.7rem;font-size:.73rem;background:rgba(240,255,68,.1);color:var(--accent);padding:.2rem .55rem;border-radius:20px}
+.trend-hook{font-size:.75rem;color:var(--accent2);margin-top:.4rem;font-style:italic}
+.storyboard{display:flex;flex-direction:column;gap:.9rem}
+.scene-card{display:grid;grid-template-columns:44px 1fr;gap:1rem;align-items:start;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.scene-num{background:var(--accent);color:#07090d;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:.95rem;flex-shrink:0}
+.scene-time-badge{font-size:.72rem;font-weight:600;color:var(--accent);background:rgba(240,255,68,.1);padding:.18rem .5rem;border-radius:20px;white-space:nowrap}
+.scene-narration{font-size:.87rem;margin:.4rem 0;line-height:1.65}
+.scene-visual{font-size:.78rem;color:var(--muted);line-height:1.5}
+.scene-visual strong{color:var(--purple)}
+.scene-img{width:100%;border-radius:8px;margin-top:.6rem;aspect-ratio:9/16;object-fit:cover;background:var(--surface);border:1px solid var(--border);display:block;max-height:220px}
+.scene-img-placeholder{width:100%;border-radius:8px;margin-top:.6rem;aspect-ratio:9/16;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;max-height:220px;color:var(--muted);font-size:.8rem}
+.flux-label{font-size:.7rem;color:var(--purple);margin-top:.3rem}
+.assembly-box{background:var(--surface2);border:1px solid rgba(168,85,247,.2);border-radius:14px;padding:1.4rem;margin-top:1.2rem}
+.assembly-box h3{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--purple);margin-bottom:.5rem}
+.voice-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.2);border-radius:20px;padding:.3rem .8rem;font-size:.78rem;color:var(--blue);margin-bottom:.5rem}
+.flux-info{display:inline-flex;align-items:center;gap:.5rem;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.2);border-radius:20px;padding:.3rem .8rem;font-size:.78rem;color:var(--purple);margin-bottom:1rem;margin-left:.5rem}
+.btn-assemble{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.8rem;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn-assemble:hover{opacity:.9}
+.btn-assemble:disabled{opacity:.4;cursor:not-allowed}
+.progress-wrap{margin-top:1rem}
+.progress-label{font-size:.8rem;color:var(--muted);margin-bottom:.4rem;display:flex;justify-content:space-between}
+.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--accent));border-radius:3px;transition:width .4s}
+.progress-steps{display:flex;flex-direction:column;gap:.3rem;margin-top:.8rem}
+.ps{font-size:.78rem;display:flex;align-items:center;gap:.5rem;color:var(--muted)}
+.ps.done{color:var(--accent)}
+.ps.current{color:var(--text)}
+.ps.done::before{content:'✓';color:var(--accent);font-weight:700}
+.ps.current::before{content:'⟳';display:inline-block;animation:spin 1s linear infinite}
+.ps.pending::before{content:'○'}
+.video-result{background:var(--surface2);border:1px solid rgba(240,255,68,.2);border-radius:14px;padding:1.4rem;margin-top:1.2rem;text-align:center}
+.video-result h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--accent);margin-bottom:1rem}
+.video-result video{width:100%;max-width:300px;border-radius:12px;border:1px solid var(--border)}
+.btn-download{display:inline-flex;align-items:center;gap:.5rem;margin-top:1rem;padding:.7rem 1.4rem;background:var(--accent);color:#07090d;border:none;border-radius:var(--radius);font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;text-decoration:none}
+.yt-upload-box{background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(239,68,68,.04));border:1px solid rgba(239,68,68,.25);border-radius:14px;padding:1.4rem;margin-top:1rem;text-align:left}
+.yt-upload-box h3{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--red);margin-bottom:.8rem}
+.yt-steps{list-style:none;counter-reset:ytsteps;display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.yt-steps li{counter-increment:ytsteps;display:flex;align-items:flex-start;gap:.7rem;font-size:.82rem;color:var(--muted);line-height:1.5}
+.yt-steps li::before{content:counter(ytsteps);background:var(--red);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;margin-top:1px}
+.yt-steps li strong{color:var(--text)}
+.yt-copy-row{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.yt-copy-btn{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .2s;font-size:.82rem;color:var(--text)}
+.yt-copy-btn:hover{border-color:var(--red);color:var(--red)}
+.yt-copy-btn span{opacity:.5;font-size:.75rem}
+.btn-yt-open{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:.8rem;background:var(--red);color:#fff;border:none;border-radius:var(--radius);font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;text-decoration:none;transition:opacity .2s}
+.btn-yt-open:hover{opacity:.9}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.meta-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.meta-block.full{grid-column:1/-1}
+.meta-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.4rem;font-weight:600}
+.meta-value{font-size:.87rem;line-height:1.65;word-break:break-word}
+.meta-value.title-val{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:var(--accent)}
+.meta-value.title-en{color:var(--blue)}
+.tag-list{display:flex;flex-wrap:wrap;gap:.35rem}
+.tag{background:rgba(255,77,109,.09);color:var(--accent2);border:1px solid rgba(255,77,109,.18);padding:.18rem .55rem;border-radius:20px;font-size:.75rem}
+.social-tabs{display:flex;gap:.4rem;margin-bottom:1.2rem}
+.tab-btn{padding:.45rem 1.1rem;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.82rem;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+.tab-btn.active{background:var(--accent);color:#07090d;border-color:var(--accent);font-weight:600}
+.social-content{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;font-size:.87rem;line-height:1.8;white-space:pre-wrap;max-height:340px;overflow-y:auto}
+.copy-btn{display:inline-flex;align-items:center;gap:.4rem;margin-top:.8rem;padding:.45rem .9rem;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.8rem;cursor:pointer;transition:all .2s}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn-secondary{padding:.6rem 1.2rem;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:.85rem;cursor:pointer;transition:all .2s}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.error-msg{color:var(--accent2);font-size:.85rem;padding:1rem}
+.lang-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;background:rgba(240,255,68,.1);color:var(--accent);border:1px solid rgba(240,255,68,.2);padding:.15rem .5rem;border-radius:20px;margin-left:.5rem}
+.fade-in{animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(max-width:600px){
+  .meta-grid{grid-template-columns:1fr}
+  header{padding:.8rem 1rem}
+  main{padding:1.2rem .9rem}
+  .trend-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="setup">
+  <div class="setup-card">
+    <div class="logo">
+      <span class="logo-icon">⚡</span>
+      <h1>ShortsFuel</h1>
+      <p>Motor de contenido viral para YouTube Shorts</p>
+      <div id="savedBadge" style="display:none" class="saved-badge">🔑 API keys guardadas</div>
+      <div id="elevenUsage" class="eleven-usage" style="display:none"></div>
+      <div class="flux-badge">🎨 Imágenes IA con Flux — exactas a la narración</div>
+      <div class="claude-badge">🤖 Ideas virales con Claude — sin límites de cuota</div>
+    </div>
+    <div class="field">
+      <label>Claude API Key</label>
+      <input id="claudeKey" type="password" placeholder="sk-ant-api03-…"/>
+    </div>
+    <div class="field">
+      <label>Fal.ai API Key (Flux)</label>
+      <input id="falKey" type="password" placeholder="key-xxxxxxxxxxxxxxxx…"/>
+      <div class="field-hint">Gratis en <a href="https://fal.ai" target="_blank">fal.ai</a> — $5 crédito inicial sin tarjeta</div>
+    </div>
+    <div class="field">
+      <label>ElevenLabs API Key</label>
+      <input id="elevenKey" type="password" placeholder="Tu ElevenLabs API key…"/>
+      <div class="field-hint">Consíguela en <a href="https://elevenlabs.io" target="_blank">elevenlabs.io</a></div>
+    </div>
+    <div class="divider"></div>
+    <div class="field">
+      <label>Nicho de contenido</label>
+      <select id="niche">
+        <optgroup label="🌎 Español">
+          <option value="misterio conspiraciones y fenomenos inexplicables">🔍 Misterio y Conspiraciones</option>
+          <option value="que pasaria si escenarios imposibles y curiosos">🤔 ¿Qué Pasaría Si...?</option>
+          <option value="datos ridiculos que resultaron ser verdad">😂 Lo Ridículo que es Verdad</option>
+          <option value="comparaciones imposibles que explotan la mente">🤯 Comparaciones Imposibles</option>
+          <option value="datos curiosos impactantes e increibles">🤯 Datos Curiosos</option>
+          <option value="tecnologia e inteligencia artificial">🤖 Tecnología / IA</option>
+          <option value="motivacion emprendimiento y mentalidad de exito">💪 Motivación y Negocios</option>
+          <option value="historia conflictos belicos y secretos militares">⚔️ Historia y Conflictos</option>
+        </optgroup>
+        <optgroup label="🇺🇸 English">
+          <option value="what if impossible scenarios english">🤔 What If...? (EN)</option>
+          <option value="personal finance investing and financial freedom english">💰 Personal Finance (EN)</option>
+          <option value="geopolitics oil wars and world conflicts english">🌍 Geopolitics & Wars (EN)</option>
+          <option value="bitcoin crypto and financial markets english">₿ Crypto & Markets (EN)</option>
+          <option value="military history wars and secret operations english">🎖️ Military History (EN)</option>
+          <option value="artificial intelligence future technology english">🤖 AI & Future Tech (EN)</option>
+        </optgroup>
+      </select>
+    </div>
+    <button class="btn-primary" id="btnStart">Entrar a ShortsFuel →</button>
+    <button class="btn-clear" id="btnClear">🗑 Borrar API keys guardadas</button>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="header-logo">Shorts<span>Fuel</span> ⚡</div>
+    <div class="steps">
+      <div class="step-dot active" id="sd1">1</div><div class="step-line"></div>
+      <div class="step-dot" id="sd2">2</div><div class="step-line"></div>
+      <div class="step-dot" id="sd3">3</div><div class="step-line"></div>
+      <div class="step-dot" id="sd4">4</div>
+    </div>
+    <div style="display:flex;gap:.5rem">
+      <button class="btn-menu" id="btnMenu">⚙ Menú</button>
+      <button class="btn-reset" id="btnReset">↺ Nuevo Short</button>
+    </div>
+  </header>
+  <main>
+    <div id="step1Panel" class="panel fade-in">
+      <div class="panel-title">
+        <div class="step-badge">1</div>
+        Ideas virales para hoy
+        <span id="langBadge" class="lang-badge" style="display:none"></span>
+      </div>
+      <div id="trendsContainer"><div class="loading"><div class="spinner"></div><p>Generando ideas virales con Claude…</p></div></div>
+      <div style="margin-top:1rem;display:none" id="refreshRow">
+        <button class="btn-secondary" id="btnRefresh">↺ Generar nuevas ideas</button>
+      </div>
+    </div>
+    <div id="step2Panel" class="panel fade-in" style="display:none">
+      <div class="panel-title">
+        <div class="step-badge">2</div>Storyboard + Imágenes IA
+        <span id="trendBadge" style="margin-left:auto;font-size:.78rem;color:var(--muted)"></span>
+      </div>
+      <div id="storyboardContainer"><div class="loading"><div class="spinner"></div><p>Generando storyboard…</p></div></div>
+    </div>
+    <div id="step3Panel" class="panel fade-in" style="display:none">
+      <div class="panel-title"><div class="step-badge">3</div>Metadatos virales para YouTube</div>
+      <div id="metadataContainer"><div class="loading"><div class="spinner"></div><p>Optimizando metadatos…</p></div></div>
+    </div>
+    <div id="step4Panel" class="panel fade-in" style="display:none">
+      <div class="panel-title"><div class="step-badge">4</div>Contenido para redes sociales</div>
+      <div class="social-tabs">
+        <button class="tab-btn active" id="tabX">𝕏 Hilo</button>
+        <button class="tab-btn" id="tabInsta">📸 Instagram</button>
+        <button class="tab-btn" id="tabFb">📘 Facebook</button>
+      </div>
+      <div id="socialContainer"><div class="loading"><div class="spinner"></div><p>Creando contenido…</p></div></div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+<script>
+const VOICE_ID_PRIMARY   = 'pqHfZKP75CvOlQylNhV4';
+const VOICE_ID_FALLBACK1 = 'ErXwobaYiN019PkySvjV';
+const VOICE_ID_FALLBACK2 = 'VR6AewLTigWG4xSOukaG';
+const VOICE_ID_EN_PRIMARY  = 'onwK4e9ZLuTAKqWW03F9';
+const VOICE_ID_EN_FALLBACK = 'TxGEqnHWrfWFTfGW9XjX';
+const STORAGE_KEY='shortsfuel_v3';
+
+let CLAUDE='',FAL='',ELEVEN='',NICHE='';
+let currentTrend=null,_scenes=[],_meta={},_social={},_images=[];
+let activeTab='x',ffmpegLoaded=false,selectedVoice=VOICE_ID_PRIMARY;
+let isEnglishNiche=false,ff=null;
+
+const STEPS_DEF=['Cargando ffmpeg…','Generando audio…','Animando imágenes…','Convirtiendo a MP4…','Concatenando…','Mezclando audio y video…'];
+
+const ENGLISH_NICHES=['what if impossible scenarios english','personal finance investing and financial freedom english','geopolitics oil wars and world conflicts english','bitcoin crypto and financial markets english','military history wars and secret operations english','artificial intelligence future technology english'];
+
+const NICHE_PROMPTS={
+  'que pasaria si escenarios imposibles y curiosos':{style:'¿QUÉ PASARÍA SI? Empieza con pregunta imposible. Lleva paso a paso. Usa "imagina que mañana...","en exactamente X minutos...","lo primero que notarías..."',examples:['¿Qué pasaría si la Luna desapareciera esta noche?','¿Qué pasaría si todos los humanos desaparecieran 24 horas?']},
+  'what if impossible scenarios english':{style:'WHAT IF? Start with impossible question. Step by step consequences. Use "imagine if tomorrow...","in exactly X minutes...","the first thing you would notice..."',examples:['What if the Moon disappeared tonight?','What if all humans vanished for 24 hours?']},
+  'datos ridiculos que resultaron ser verdad':{style:'LO RIDÍCULO QUE ES VERDAD. Presenta hecho absurdo, luego revela que es 100% real.',examples:['La CIA entrenó gatos como espías','Un país declaró la guerra a los conejos y perdió']},
+  'comparaciones imposibles que explotan la mente':{style:'COMPARACIONES IMPOSIBLES. Toma algo enorme, redúcelo a cotidiano.',examples:['Si el universo tuviera el tamaño de tu cuarto','Si toda la humanidad cupiera en un cubo de azúcar']},
+};
+
+// ── LOCAL STORAGE ──
+function saveKeys(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({claude:CLAUDE,fal:FAL,eleven:ELEVEN,niche:NICHE}));}catch(_){}}
+function loadSavedKeys(){
+  try{
+    const k=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+    if(k.claude) document.getElementById('claudeKey').value=k.claude;
+    if(k.fal)    document.getElementById('falKey').value=k.fal;
+    if(k.eleven) document.getElementById('elevenKey').value=k.eleven;
+    if(k.niche)  document.getElementById('niche').value=k.niche;
+    if(k.claude&&k.fal&&k.eleven) document.getElementById('savedBadge').style.display='inline-flex';
+  }catch(_){}
+}
+function clearSaved(){
+  try{localStorage.removeItem(STORAGE_KEY);}catch(_){}
+  ['claudeKey','falKey','elevenKey'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('savedBadge').style.display='none';
+  document.getElementById('elevenUsage').style.display='none';
+  alert('🗑 API keys borradas');
+}
+
+async function loadElevenUsage(){
+  if(!ELEVEN)return;
+  try{
+    const r=await fetch('https://api.elevenlabs.io/v1/user/subscription',{headers:{'xi-api-key':ELEVEN}});
+    if(!r.ok)return;
+    const d=await r.json();
+    const used=d.character_count||0,total=d.character_limit||10000;
+    const el=document.getElementById('elevenUsage');
+    el.style.display='flex';
+    el.innerHTML=`🎙 ElevenLabs: <strong>${(total-used).toLocaleString()}</strong> chars restantes (${Math.round((1-used/total)*100)}% disponible)`;
+  }catch(_){}
+}
+
+function startApp(){
+  CLAUDE=document.getElementById('claudeKey').value.trim();
+  FAL=document.getElementById('falKey').value.trim();
+  ELEVEN=document.getElementById('elevenKey').value.trim();
+  NICHE=document.getElementById('niche').value;
+  if(!CLAUDE||!FAL||!ELEVEN){alert('Ingresa las 3 API keys.');return;}
+  isEnglishNiche=ENGLISH_NICHES.includes(NICHE);
+  saveKeys();
+  document.getElementById('setup').style.display='none';
+  document.getElementById('app').style.display='block';
+  const lb=document.getElementById('langBadge');
+  lb.textContent=isEnglishNiche?'🇺🇸 English':'🌎 Español';
+  lb.style.display='inline-flex';
+  // Inicializar ffmpeg
+  const {createFFmpeg}=FFmpeg;
+  ff=createFFmpeg({log:false,corePath:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'});
+  setStep(1);
+  resolveVoice().then(()=>loadTrends());
+}
+
+function goToMenu(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('setup').style.display='flex';
+  document.getElementById('claudeKey').value=CLAUDE;
+  document.getElementById('falKey').value=FAL;
+  document.getElementById('elevenKey').value=ELEVEN;
+  document.getElementById('niche').value=NICHE;
+  document.getElementById('savedBadge').style.display='inline-flex';
+  window.scrollTo({top:0,behavior:'smooth'});
+  loadElevenUsage();
+}
+
+async function resolveVoice(){
+  try{
+    const r=await fetch('https://api.elevenlabs.io/v1/voices',{headers:{'xi-api-key':ELEVEN}});
+    if(!r.ok)return;
+    const ids=(await r.json()).voices.map(v=>v.voice_id);
+    if(isEnglishNiche){
+      selectedVoice=ids.includes(VOICE_ID_EN_PRIMARY)?VOICE_ID_EN_PRIMARY:ids.includes(VOICE_ID_EN_FALLBACK)?VOICE_ID_EN_FALLBACK:ids[0]||VOICE_ID_EN_PRIMARY;
+    } else {
+      selectedVoice=ids.includes(VOICE_ID_PRIMARY)?VOICE_ID_PRIMARY:ids.includes(VOICE_ID_FALLBACK1)?VOICE_ID_FALLBACK1:ids[0]||VOICE_ID_PRIMARY;
+    }
+  }catch(_){}
+}
+
+function resetApp(){
+  currentTrend=null;_scenes=[];_meta={};_social={};_images=[];
+  ['step2Panel','step3Panel','step4Panel'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('step1Panel').style.display='block';
+  document.getElementById('refreshRow').style.display='none';
+  document.getElementById('trendsContainer').innerHTML='<div class="loading"><div class="spinner"></div><p>Generando ideas virales con Claude…</p></div>';
+  setStep(1);loadTrends();
+}
+
+function setStep(n){for(let i=1;i<=4;i++){document.getElementById('sd'+i).className='step-dot'+(i<n?' done':i===n?' active':'');}}
+
+async function callClaude(messages,maxTokens=2500){
+  const body=JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,messages});
+  const hdrs={'Content-Type':'application/json','x-api-key':CLAUDE,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:hdrs,body});
+    if(r.ok){const d=await r.json();return d.content[0].text;}
+  }catch(_){}
+  const r=await fetch('https://corsproxy.io/?url='+encodeURIComponent('https://api.anthropic.com/v1/messages'),{method:'POST',headers:hdrs,body});
+  if(!r.ok)throw new Error('Claude API error '+r.status);
+  return (await r.json()).content[0].text;
+}
+function parseJSON(raw){return JSON.parse(raw.replace(/```json|```/g,'').trim());}
+
+// ── FLUX — llamada directa (funciona en Netlify con HTTPS) ──
+async function generateFluxImage(prompt){
+  try{
+    const r=await fetch('https://fal.run/fal-ai/flux/schnell',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Key ${FAL}`},
+      body:JSON.stringify({
+        prompt:prompt+', vertical portrait 9:16, cinematic, dramatic lighting, ultra realistic, 4K',
+        image_size:'portrait_4_3',
+        num_inference_steps:4,
+        num_images:1,
+      })
+    });
+    if(!r.ok){console.error('Flux error:',r.status,await r.text());return null;}
+    const d=await r.json();
+    return d.images?.[0]?.url||null;
+  }catch(e){
+    // Fallback con proxy si falla directa
+    try{
+      const r2=await fetch('https://corsproxy.io/?url='+encodeURIComponent('https://fal.run/fal-ai/flux/schnell'),{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Key ${FAL}`},
+        body:JSON.stringify({
+          prompt:prompt+', vertical portrait 9:16, cinematic, dramatic lighting, ultra realistic, 4K',
+          image_size:'portrait_4_3',
+          num_inference_steps:4,
+          num_images:1,
+        })
+      });
+      if(!r2.ok)return null;
+      const d2=await r2.json();
+      return d2.images?.[0]?.url||null;
+    }catch(_){return null;}
+  }
+}
+
+async function tts(text){
+  const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','xi-api-key':ELEVEN},
+    body:JSON.stringify({text,model_id:'eleven_multilingual_v2',voice_settings:{stability:.45,similarity_boost:.82,style:.3,use_speaker_boost:true}})
+  });
+  if(!r.ok){throw new Error('ElevenLabs: '+(await r.text()).substring(0,200));}
+  return r.arrayBuffer();
+}
+
+async function getAudioDuration(buf){
+  return new Promise(resolve=>{
+    try{
+      const ctx=new(window.AudioContext||window.webkitAudioContext)();
+      ctx.decodeAudioData(buf.slice(0),b=>{ctx.close();resolve(Math.ceil(b.duration)+1);},()=>resolve(65));
+    }catch(_){resolve(65);}
+  });
+}
+
+async function loadTrends(){
+  document.getElementById('trendsContainer').innerHTML='<div class="loading"><div class="spinner"></div><p>Generando ideas virales con Claude…</p></div>';
+  document.getElementById('refreshRow').style.display='none';
+  const nd=NICHE_PROMPTS[NICHE];
+  const li=isEnglishNiche?'Generate ALL content in ENGLISH only.':'Genera todo el contenido en ESPAÑOL.';
+  const sg=nd?`\nESTILO: ${nd.style}\nEJEMPLOS: ${nd.examples.join(' | ')}`:'';
+  try{
+    const raw=await callClaude([{role:'user',content:`Eres experto en contenido viral YouTube Shorts 2026.\nNicho: "${NICHE}"\n${li}${sg}\n\nGenera 6 ideas ULTRA VIRALES para HOY. Hook imposible de ignorar en 1.5s, curiosity gap.\n\nResponde SOLO JSON sin markdown:\n[{"emoji":"🔥","title":"Idea máx 8 palabras","hook":"Primera frase que detiene el scroll máx 15 palabras","why":"Por qué va a viralizar","score":95}]`}]);
+    window._trends=parseJSON(raw);
+    const grid=`<div class="trend-grid">${window._trends.map((t,i)=>`
+      <div class="trend-card fade-in" data-idx="${i}">
+        <div class="trend-emoji">${t.emoji}</div>
+        <div class="trend-title">${t.title}</div>
+        <div class="trend-why">${t.why}</div>
+        <div class="trend-hook">"${t.hook}"</div>
+        <div class="trend-score">🔥 ${t.score}/100</div>
+      </div>`).join('')}</div>`;
+    document.getElementById('trendsContainer').innerHTML=grid;
+    document.querySelectorAll('.trend-card').forEach(card=>{
+      card.addEventListener('click',()=>selectTrend(parseInt(card.dataset.idx)));
+    });
+  }catch(e){
+    document.getElementById('trendsContainer').innerHTML=`<p class="error-msg">⚠ Error: ${e.message}</p>`;
+  }
+  document.getElementById('refreshRow').style.display='block';
+}
+
+async function selectTrend(idx){
+  document.querySelectorAll('.trend-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelector(`[data-idx="${idx}"]`).classList.add('selected');
+  currentTrend=window._trends[idx];
+  document.getElementById('trendBadge').textContent=currentTrend.emoji+' '+currentTrend.title;
+  document.getElementById('step2Panel').style.display='block';
+  document.getElementById('step2Panel').scrollIntoView({behavior:'smooth'});
+  setStep(2);
+  document.getElementById('storyboardContainer').innerHTML='<div class="loading"><div class="spinner"></div><p>Generando storyboard…</p></div>';
+  try{
+    const nd=NICHE_PROMPTS[NICHE];
+    const lr=isEnglishNiche?'Write ALL narration in ENGLISH. NEVER use "look","watch","see this","in this video".':'Escribe toda la narración en ESPAÑOL. NUNCA uses "mira","observa","fíjate","en esta imagen".';
+    const sn=nd?`\nESTILO: ${nd.style}`:'';
+    const storyRaw=await callClaude([{role:'user',content:`Crea storyboard 6 escenas YouTube Short 60s sobre: "${currentTrend.title}".\nHook: "${currentTrend.hook}"\nNicho: ${NICHE}\n${lr}${sn}\n\nREGLAS:\n- Escena 1 usa el hook: "${currentTrend.hook}"\n- Cada escena crea urgencia para ver la siguiente\n- Termina con revelación impactante\n\nFLUX PROMPT — describe EXACTAMENTE lo visual:\nEjemplos:\n"Moon slowly disappearing from Earth sky, dramatic darkness, cinematic space view"\n"Tiny ant lifting car, macro photography, white background"\n"CIA spy cat with microphone collar, vintage 1960s black and white"\n\nResponde SOLO JSON sin markdown:\n[{"scene":1,"timeStart":"0:00","timeEnd":"0:10","narrationES":"${isEnglishNiche?'narración en inglés':'narración en español impactante'}","narrationEN":"narration in english","fluxPrompt":"detailed visual english, matches narration, cinematic 9:16","textOverlay":"texto gancho corto","transition":"cut|fade|zoom"}]`}],3000);
+    _scenes=parseJSON(storyRaw);
+    document.getElementById('storyboardContainer').innerHTML=`<div class="loading"><div class="spinner"></div><p>🎨 Generando ${_scenes.length} imágenes con Flux IA… (~30-45s)</p></div>`;
+    _images=await Promise.all(_scenes.map(s=>generateFluxImage(s.fluxPrompt)));
+    renderStoryboard();
+    generateMetadata();
+  }catch(e){
+    document.getElementById('storyboardContainer').innerHTML=`<p class="error-msg">Error: ${e.message}</p>`;
+  }
+}
+
+function renderStoryboard(){
+  const nk=isEnglishNiche?'narrationEN':'narrationES';
+  const board=`<div class="storyboard">${_scenes.map((s,i)=>{
+    const img=_images[i];
+    return`<div class="scene-card fade-in">
+      <div class="scene-num">${s.scene}</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem">
+          <span style="font-size:.73rem;color:var(--text);font-weight:600">${s.timeStart}–${s.timeEnd}</span>
+          <span class="scene-time-badge">💬 ${s.textOverlay}</span>
+        </div>
+        <div class="scene-narration">${isEnglishNiche?'🇺🇸':'🇪🇸'} ${s[nk]||s.narrationES}</div>
+        <div class="scene-visual"><strong>🎨 Flux:</strong> "${(s.fluxPrompt||'').substring(0,80)}…"</div>
+        ${img
+          ?`<img src="${img}" class="scene-img" alt="AI scene" crossorigin="anonymous"/><div class="flux-label">🎨 Generado con Flux IA</div>`
+          :`<div class="scene-img-placeholder">⚠ Sin imagen — fondo negro</div>`}
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+  const vl=isEnglishNiche?'Daniel (EN)':'Valentino (ES)';
+  const assembly=`<div class="assembly-box">
+    <h3>🎨 Listo para ensamblar</h3>
+    <div class="voice-badge">🎙 ${vl} · Narración documental</div>
+    <div class="flux-info">🎨 Flux IA · Imágenes exactas</div>
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:1rem">~3-5 min para animar + narración + ensamblar.</p>
+    <button class="btn-assemble" id="assembleBtn">⚡ Ensamblar video con imágenes IA</button>
+    <div id="assembleProgress" style="display:none">
+      <div class="progress-wrap">
+        <div class="progress-label"><span id="progressLabel">Iniciando…</span><span id="progressPct">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+      <div class="progress-steps" id="progressSteps"></div>
+    </div>
+    <div id="videoResult"></div>
+  </div>`;
+  document.getElementById('storyboardContainer').innerHTML=board+assembly;
+  document.getElementById('assembleBtn').addEventListener('click',assembleVideo);
+}
+
+function setProgress(pct,label,stepIdx){
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressLabel').textContent=label;
+  document.getElementById('progressPct').textContent=pct+'%';
+  document.getElementById('progressSteps').innerHTML=STEPS_DEF.map((s,i)=>`<div class="ps ${i<stepIdx?'done':i===stepIdx?'current':'pending'}">${s}</div>`).join('');
+}
+
+function renderKenBurns(imgEl,dur,zoomIn){
+  return new Promise((resolve,reject)=>{
+    const W=1080,H=1920,fps=24,frames=Math.round(dur*fps);
+    const canvas=document.createElement('canvas');
+    canvas.width=W;canvas.height=H;
+    const ctx=canvas.getContext('2d');
+    const ar=imgEl.naturalWidth/imgEl.naturalHeight,car=W/H;
+    let sw,sh,sx=0,sy=0;
+    if(ar>car){sh=imgEl.naturalHeight;sw=sh*car;sx=(imgEl.naturalWidth-sw)/2;}
+    else{sw=imgEl.naturalWidth;sh=sw/car;sy=(imgEl.naturalHeight-sh)/2;}
+    const z0=zoomIn?1.0:1.12,z1=zoomIn?1.12:1.0;
+    const rec=new MediaRecorder(canvas.captureStream(fps),{mimeType:MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm',videoBitsPerSecond:4000000});
+    const chunks=[];
+    rec.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
+    rec.onstop=()=>resolve(new Blob(chunks,{type:'video/webm'}));
+    rec.onerror=reject;
+    rec.start(100);
+    let f=0;
+    (function draw(){
+      if(f>=frames){rec.stop();return;}
+      const t=f/frames,z=z0+(z1-z0)*t;
+      const cw=sw/z,ch=sh/z,cx=sx+(sw-cw)/2,cy=sy+(sh-ch)/2;
+      ctx.drawImage(imgEl,cx,cy,cw,ch,0,0,W,H);
+      f++;requestAnimationFrame(draw);
+    })();
+  });
+}
+
+function loadImg(url){
+  return new Promise((res,rej)=>{
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>res(img);
+    img.onerror=rej;
+    img.src=url;
+  });
+}
+
+async function assembleVideo(){
+  const btn=document.getElementById('assembleBtn');
+  btn.disabled=true;
+  document.getElementById('assembleProgress').style.display='block';
+  document.getElementById('videoResult').innerHTML='';
+  try{
+    setProgress(5,'Cargando ffmpeg.wasm…',0);
+    if(!ffmpegLoaded){await ff.load();ffmpegLoaded=true;}
+
+    setProgress(15,'Generando narración…',1);
+    const narr=_scenes.map(s=>isEnglishNiche?(s.narrationEN||s.narrationES):s.narrationES).join('. ');
+    const abuf=await tts(narr);
+    const dur=await getAudioDuration(abuf.slice(0));
+    const fade=Math.max(dur-2,1);
+    ff.FS('writeFile','narration.mp3',new Uint8Array(abuf));
+    const imgDur=Math.ceil(dur/_scenes.length);
+
+    setProgress(25,'Animando imágenes…',2);
+    const blobs=[];
+    for(let i=0;i<_scenes.length;i++){
+      if(!_images[i]){blobs.push(null);continue;}
+      try{
+        const el=await loadImg(_images[i]);
+        blobs.push(await renderKenBurns(el,imgDur,Math.random()>0.5));
+      }catch(_){blobs.push(null);}
+      setProgress(25+Math.round((i+1)/_scenes.length*20),`Escena ${i+1}/${_scenes.length}`,2);
+    }
+
+    setProgress(48,'Convirtiendo a MP4…',3);
+    const proc=[];
+    for(let i=0;i<blobs.length;i++){
+      const out=`sc${i}.mp4`;
+      if(!blobs[i]){
+        await ff.run('-f','lavfi','-i','color=c=black:s=1080x1920:r=24','-t',String(imgDur),'-c:v','libx264','-preset','ultrafast','-crf','28','-pix_fmt','yuv420p',out);
+      } else {
+        const wb=`wb${i}.webm`;
+        ff.FS('writeFile',wb,new Uint8Array(await blobs[i].arrayBuffer()));
+        await ff.run('-i',wb,'-c:v','libx264','-preset','ultrafast','-crf','26','-pix_fmt','yuv420p','-an',out);
+        ff.FS('unlink',wb);
+      }
+      proc.push(out);
+      setProgress(48+Math.round((i+1)/blobs.length*15),`Clip ${i+1} listo`,3);
+    }
+
+    setProgress(65,'Concatenando…',4);
+    ff.FS('writeFile','list.txt',proc.map(f=>`file '${f}'`).join('\n'));
+    await ff.run('-f','concat','-safe','0','-i','list.txt','-c','copy','merged.mp4');
+
+    setProgress(82,'Mezclando audio y video…',5);
+    await ff.run('-i','merged.mp4','-i','narration.mp3','-filter_complex',`[0:v]tpad=stop_mode=clone:stop_duration=${dur+2}[v];[1:a]afade=t=out:st=${fade}:d=1.5[a]`,'-map','[v]','-map','[a]','-c:v','libx264','-preset','ultrafast','-crf','24','-c:a','aac','-t',String(dur),'-movflags','+faststart','final.mp4');
+
+    setProgress(100,'¡Video listo!',6);
+    const data=ff.FS('readFile','final.mp4');
+    const url=URL.createObjectURL(new Blob([data.buffer],{type:'video/mp4'}));
+    showYouTubeUploadGuide(url);
+    [...proc,'merged.mp4','narration.mp3','list.txt','final.mp4'].forEach(f=>{try{ff.FS('unlink',f);}catch(_){}});
+  }catch(e){
+    document.getElementById('videoResult').innerHTML=`<p class="error-msg">⚠ Error: ${e.message}</p>`;
+    setProgress(0,'Error',0);
+  }
+  btn.disabled=false;
+}
+
+function showYouTubeUploadGuide(videoUrl){
+  if(!_meta.titleES)return;
+  const title=isEnglishNiche?_meta.titleEN:_meta.titleES;
+  const titleAlt=isEnglishNiche?_meta.titleES:_meta.titleEN;
+  const desc=isEnglishNiche?`${_meta.descriptionEN}\n\n${_meta.descriptionES}\n\n${(_meta.hashtags||[]).join(' ')}`:`${_meta.descriptionES}\n\n${_meta.descriptionEN}\n\n${(_meta.hashtags||[]).join(' ')}`;
+  const tags=[...(_meta.tagsES||[]),...(_meta.tagsEN||[])].join(', ');
+  document.getElementById('videoResult').innerHTML=`
+  <div class="video-result fade-in">
+    <h3>✅ ¡Video listo con imágenes IA!</h3>
+    <video src="${videoUrl}" controls playsinline></video><br/>
+    <a href="${videoUrl}" download="short_${Date.now()}.mp4" class="btn-download">⬇ Descargar MP4</a>
+  </div>
+  <div class="yt-upload-box fade-in">
+    <h3>▶️ Subir a YouTube — 30 segundos</h3>
+    <ol class="yt-steps">
+      <li>Descarga el MP4 con el botón de arriba</li>
+      <li>Copia el <strong>título</strong> con el botón abajo</li>
+      <li>Copia la <strong>descripción</strong> y los <strong>tags</strong></li>
+      <li>Abre YouTube Studio y sube el video</li>
+      <li>Pega título, descripción y tags</li>
+      <li>Categoría: <strong>${_meta.category||'Entretenimiento'}</strong> → Publicar</li>
+    </ol>
+    <div class="yt-copy-row">
+      <button class="yt-copy-btn" id="cpTitle">📋 Copiar título principal <span>${(title||'').substring(0,45)}…</span></button>
+      <button class="yt-copy-btn" id="cpTitleAlt">📋 Copiar título alternativo <span>${(titleAlt||'').substring(0,45)}…</span></button>
+      <button class="yt-copy-btn" id="cpDesc">📋 Copiar descripción + hashtags <span>ES + EN</span></button>
+      <button class="yt-copy-btn" id="cpTags">📋 Copiar tags SEO <span>${tags.substring(0,50)}…</span></button>
+    </div>
+    <a href="https://studio.youtube.com" target="_blank" class="btn-yt-open">▶️ Abrir YouTube Studio</a>
+    <p style="font-size:.72rem;color:var(--muted);margin-top:.8rem;text-align:center">💡 Mejor hora: ${_meta.bestTimeToPost||'consulta los metadatos'}</p>
+  </div>`;
+  document.getElementById('cpTitle').onclick=()=>navigator.clipboard.writeText(title).then(()=>alert('✅ Título copiado'));
+  document.getElementById('cpTitleAlt').onclick=()=>navigator.clipboard.writeText(titleAlt).then(()=>alert('✅ Alternativo copiado'));
+  document.getElementById('cpDesc').onclick=()=>navigator.clipboard.writeText(desc).then(()=>alert('✅ Descripción copiada'));
+  document.getElementById('cpTags').onclick=()=>navigator.clipboard.writeText(tags).then(()=>alert('✅ Tags copiados'));
+}
+
+async function generateMetadata(){
+  document.getElementById('step3Panel').style.display='block';setStep(3);
+  try{
+    const li=isEnglishNiche?'Generate ALL metadata in ENGLISH.':'Genera todos los metadatos en ESPAÑOL.';
+    const raw=await callClaude([{role:'user',content:`Metadatos YouTube Short: "${currentTrend.title}". Hook: "${currentTrend.hook}". Nicho: "${NICHE}". ${li}\nSOLO JSON:\n{"titleES":"Título ≤60 chars emoji","titleEN":"Alternate ≤60 chars","descriptionES":"150-200 chars","descriptionEN":"150-200 chars","tagsES":["t1","t2","t3","t4","t5","t6"],"tagsEN":["t1","t2","t3","t4","t5","t6"],"hashtags":["#h1","#h2","#h3","#h4","#h5"],"category":"Category","bestTimeToPost":"time and reason","thumbnail":"thumbnail description","hook":"hook 3s","cta":"call to action"}`}]);
+    _meta=parseJSON(raw);
+    const l1=isEnglishNiche?'🇺🇸 Primary':'🇪🇸 Principal';
+    const l2=isEnglishNiche?'🔄 Alternate':'🇺🇸 Alternate';
+    document.getElementById('metadataContainer').innerHTML=`<div class="meta-grid fade-in">
+      <div class="meta-block full"><div class="meta-label">${l1}</div><div class="meta-value title-val">${_meta.titleES}</div></div>
+      <div class="meta-block full"><div class="meta-label">${l2}</div><div class="meta-value title-val title-en">${_meta.titleEN}</div></div>
+      <div class="meta-block"><div class="meta-label">📝 Descripción</div><div class="meta-value">${_meta.descriptionES}</div></div>
+      <div class="meta-block"><div class="meta-label">📝 Description</div><div class="meta-value">${_meta.descriptionEN}</div></div>
+      <div class="meta-block full"><div class="meta-label">🏷 Tags</div><div class="tag-list">${[..._meta.tagsES,..._meta.tagsEN].map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>
+      <div class="meta-block full"><div class="meta-label">📣 Hashtags</div><div class="meta-value">${_meta.hashtags.join(' ')}</div></div>
+      <div class="meta-block"><div class="meta-label">📂 Categoría</div><div class="meta-value">${_meta.category}</div></div>
+      <div class="meta-block"><div class="meta-label">🕐 Mejor hora</div><div class="meta-value">${_meta.bestTimeToPost}</div></div>
+      <div class="meta-block full"><div class="meta-label">🖼 Miniatura</div><div class="meta-value">${_meta.thumbnail}</div></div>
+      <div class="meta-block"><div class="meta-label">⚡ Hook</div><div class="meta-value" style="color:var(--accent)">"${_meta.hook}"</div></div>
+      <div class="meta-block"><div class="meta-label">📢 CTA</div><div class="meta-value">"${_meta.cta}"</div></div>
+    </div>
+    <button class="copy-btn" id="cpMeta">📋 Copiar todos los metadatos</button>`;
+    document.getElementById('cpMeta').onclick=()=>navigator.clipboard.writeText(`TÍTULO: ${_meta.titleES}\nALT: ${_meta.titleEN}\n\nDESC:\n${_meta.descriptionES}\n\nALT DESC:\n${_meta.descriptionEN}\n\nTAGS: ${[..._meta.tagsES,..._meta.tagsEN].join(', ')}\nHASHTAGS: ${_meta.hashtags.join(' ')}\n\nMINIATURA: ${_meta.thumbnail}\nHOOK: ${_meta.hook}\nCTA: ${_meta.cta}`).then(()=>alert('✅ Copiado'));
+    generateSocial();
+  }catch(e){document.getElementById('metadataContainer').innerHTML=`<p class="error-msg">Error: ${e.message}</p>`;}
+}
+
+async function generateSocial(){
+  document.getElementById('step4Panel').style.display='block';setStep(4);
+  try{
+    const li=isEnglishNiche?'Write ALL in ENGLISH.':'Escribe todo en ESPAÑOL principalmente.';
+    const raw=await callClaude([{role:'user',content:`Social media para Short: "${currentTrend.title}". Hook: "${currentTrend.hook}". ${li}\nSOLO JSON:\n{"xThread":"Hilo X. Hook + 4 tweets + CTA. \\n\\n entre tweets. ≤280 chars.","instagram":"Caption IG. Emojis storytelling hashtags. ≤2200 chars.","facebook":"Post FB conversacional. Pregunta engagement. Emojis hashtags."}`}]);
+    _social=parseJSON(raw);
+    showTab('x',document.getElementById('tabX'));
+  }catch(e){document.getElementById('socialContainer').innerHTML=`<p class="error-msg">Error: ${e.message}</p>`;}
+}
+
+function showTab(tab,el){
+  activeTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  if(!_social.xThread)return;
+  const c={x:_social.xThread,insta:_social.instagram,fb:_social.facebook};
+  const n={x:'Hilo de X',insta:'Instagram',fb:'Facebook'};
+  document.getElementById('socialContainer').innerHTML=`<div class="social-content fade-in">${c[tab].replace(/\n/g,'<br/>')}</div><button class="copy-btn" id="cpSocial">📋 Copiar ${n[tab]}</button>`;
+  document.getElementById('cpSocial').onclick=()=>navigator.clipboard.writeText(c[tab]).then(()=>alert('✅ Copiado'));
+}
+
+// ── Registrar eventos ──
+document.addEventListener('DOMContentLoaded',()=>{
+  loadSavedKeys();
+  document.getElementById('btnStart').addEventListener('click',startApp);
+  document.getElementById('btnClear').addEventListener('click',clearSaved);
+  document.getElementById('btnMenu').addEventListener('click',goToMenu);
+  document.getElementById('btnReset').addEventListener('click',resetApp);
+  document.getElementById('btnRefresh').addEventListener('click',loadTrends);
+  document.getElementById('tabX').addEventListener('click',function(){showTab('x',this);});
+  document.getElementById('tabInsta').addEventListener('click',function(){showTab('insta',this);});
+  document.getElementById('tabFb').addEventListener('click',function(){showTab('fb',this);});
+});
+</script>
+</body>
+</html>
